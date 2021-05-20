@@ -1,0 +1,38 @@
+# These scripts use the cwebp encoder (https://developers.google.com/speed/webp/docs/cwebp) which you first need to install. 
+# In these commands, mine is installed at C:\libwebp-1.2.0-windows-x64\bin\cwebp
+
+# Recursively search current directory for jpg's and make a copy as a web file
+$jpgs = Get-ChildItem *.jpg -Recurse
+foreach ($jpg in $jpgs) {
+		$filename = $jpg.FullName
+		$newName = [io.path]::ChangeExtension($jpg.FullName, '.webp')
+     C:\libwebp-1.2.0-windows-x64\bin\cwebp -q 75 $filename -o $newName
+}
+
+# Recursively search current directory for png's and make a copy as a web file
+$pngs = Get-ChildItem *.png -Recurse
+foreach ($png in $pngs) {
+		$filename = $png.FullName
+		$newName = [io.path]::ChangeExtension($png.FullName, '.webp')
+     C:\libwebp-1.2.0-windows-x64\bin\cwebp -q 75 $filename -o $newName
+}
+
+# Recursively search current directory for any webp files that are bigger 
+# than the original png file and delete them
+$png_images = Get-ChildItem *.png -Recurse
+$webp_images = Get-ChildItem *.webp -Recurse
+foreach ($png_image in $png_images) {
+	$png_name = $png_image.FullName.replace('.png', '')
+
+	foreach ($webp_image in $webp_images) {
+		$webp_name = $webp_image.FullName.replace('.webp', '')
+
+		 if($png_name -eq $webp_name) {
+		 	
+		 	if($webp_image.length -gt $png_image.length) {
+		 		Write-Output join('Webp file was larger. Deleting ', $webp_image.FullName)
+		 		Remove-Item $webp_image.FullName
+		 	}
+		 }
+	}
+}
